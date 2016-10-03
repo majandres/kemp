@@ -81,24 +81,26 @@ for val in rule_list:
 ######################################################################################################
 #remove the rules that were found not to be "active"
 
-print "rules to delete: ", remove_these_rules.__len__()
+inactive_rules_count = remove_these_rules.__len__()
+print "rules to delete: ", inactive_rules_count
 
 for i in remove_these_rules:
     print "\t", i
 
-#ask the user if they woul like to delete the previously listed rules
-while True:
-    try:
-        answer = raw_input('\nContinue to delete [Y/N]: ').lower()
-        if answer == 'y':
-            for i in remove_these_rules:
-                if str(requests.get(lmip+'/access/delrule?name='+i, verify=False, auth=(un, pwd)).status_code) == '200':
-                    print "Deleted rule: ", i
-                else:
-                    print "Oops, something went wrong!"
-            break
-        elif answer == 'n':
+#ask the user if they would like to delete the previously listed rules.....if all rules are in use, don't ask.
+if inactive_rules_count > 0:
+    while True:
+        try:
+            answer = raw_input('\nContinue to delete [Y/N]: ').lower()
+            if answer == 'y':
+                for i in remove_these_rules:
+                    if str(requests.get(lmip+'/access/delrule?name='+i, verify=False, auth=(un, pwd)).status_code) == '200':
+                        print "Deleted rule: ", i
+                    else:
+                        print "Oops, something went wrong!"
+                break
+            elif answer == 'n':
+                sys.exit(1)
+        except KeyboardInterrupt:
+            print '\n'
             sys.exit(1)
-    except KeyboardInterrupt:
-        print '\n'
-        sys.exit(1)
