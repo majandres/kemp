@@ -86,6 +86,8 @@ def disable_all_vs_config(backup):
         print "Oops, failed to read that file...sure it's a LM Backup?"
         sys.exit(1)
 
+    return lmbackup + "_DISABLED"
+
 
 # grab VS information and disable via API
 def disable_all_vs_api(lmip, un, pwd):
@@ -140,9 +142,9 @@ try:
         except KeyboardInterrupt:
             sys.exit(1)
     if answer in ['Y', 'y']:
-        disable_all_vs_config(argv[1])
+        disabled_backup = disable_all_vs_config(argv[1])
         lmip, un, pwd = lm_connect()
-        restore_backup(argv[1], lmip, un, pwd)
+        restore_backup(disabled_backup, lmip, un, pwd)
     else:
         disable_all_vs_config(argv[1])
 
