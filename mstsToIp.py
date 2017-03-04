@@ -35,7 +35,11 @@ def msts_to_ip(*args):
         try:
             # convert to int -> hex (string) and remove the leading 0x
             msts_hex_port = str(hex(int(msts_array[1])))[2:]
-
+            
+            # it's important that there's an EVEN number of hexadecimals; pre-append 0 if not.
+            if msts_hex_port.__len__() % 2 != 0:
+                msts_hex_port = "0" + msts_hex_port
+            
             # remove two bytes at a time (from left to right), and store in a list
             port = []
             for x in range(2):
