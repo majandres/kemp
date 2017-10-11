@@ -10,7 +10,7 @@ rules_active = []
 remove_these_rules = []
 login_tries = 3
 
-#check if we can connect successfully & if the API is enabled
+# check if we can connect successfully & if the API is enabled
 try:
     lmip = 'https://' + raw_input("LM IP: ")
 except KeyboardInterrupt:
@@ -42,7 +42,7 @@ while login_tries != 0:
 
 
 ######################################################################################################
-#grab all of the content rules
+# grab all of the content rules
 
 for i in requests.get(lmip+'/access/showrule', verify=False, auth=(un, pwd)).content.split('\n'):
     try:
@@ -51,14 +51,14 @@ for i in requests.get(lmip+'/access/showrule', verify=False, auth=(un, pwd)).con
         continue
 
 ######################################################################################################
-#grab all of the rules that are actually in use
+# grab all of the rules that are actually in use
 
 for i in requests.get(lmip+'/access/listvs', verify=False, auth=(un, pwd)).content.split('\n'):
     try:
-        rule = re.search("<name>(.*)<", i, re.IGNORECASE).group(1)  #all of the rules that are active....beware, sub-vs are also under <Name> !
+        rule = re.search("<name>(.*)<", i, re.IGNORECASE).group(1)  # all of the rules that are active....beware, sub-vs are also under <Name> !
         #check if it's actually a rule!
         if rule in rule_list:
-            if rule not in rules_active:  #check for duplicates...some rules are in more than one place!
+            if rule not in rules_active:  # check for duplicates...some rules are in more than one place!
                 rules_active.append(rule)
         else:
             continue
@@ -69,8 +69,8 @@ print "\ntotal rules: ", rule_list.__len__()
 print "rules in use: ", rules_active.__len__()
 
 ######################################################################################################
-#compare rule_list[] to rules_active[]
-#check if rule_list[0] exists in rules_active[]...if not, add rule to a new list of rules to be removed from the system.
+# compare rule_list[] to rules_active[]
+# check if rule_list[0] exists in rules_active[]...if not, add rule to a new list of rules to be removed from the system.
 
 for val in rule_list:
     if val in rules_active:
@@ -79,7 +79,7 @@ for val in rule_list:
         remove_these_rules.append(val)
 
 ######################################################################################################
-#remove the rules that were found not to be "active"
+# remove the rules that were found not to be "active"
 
 inactive_rules_count = remove_these_rules.__len__()
 print "rules to delete: ", inactive_rules_count
@@ -87,14 +87,17 @@ print "rules to delete: ", inactive_rules_count
 for i in remove_these_rules:
     print "\t", i
 
-#ask the user if they would like to delete the previously listed rules.....if all rules are in use, don't ask.
+# tcp session to send multiple requests
+session = requests.Session()
+
+# ask the user if they would like to delete the previously listed rules.....if all rules are in use, don't ask.
 if inactive_rules_count > 0:
     while True:
         try:
             answer = raw_input('\nContinue to delete [Y/N]: ').lower()
             if answer == 'y':
                 for i in remove_these_rules:
-                    if str(requests.get(lmip+'/access/delrule?name='+i, verify=False, auth=(un, pwd)).status_code) == '200':
+                    if str(session.get(lmip+'/access/delrule?name='+i, verify=False, auth=(un, pwd)).status_code) == '200':
                         print "Deleted rule: ", i
                     else:
                         print "Oops, something went wrong!"
